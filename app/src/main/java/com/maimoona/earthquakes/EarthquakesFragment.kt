@@ -1,11 +1,14 @@
 package com.maimoona.earthquakes
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -62,7 +65,8 @@ class EarthquakesFragment : Fragment() {
         private val countryTextView = itemView.findViewById(R.id.country) as TextView
         private val timeTextView = itemView.findViewById(R.id.time) as TextView
         private val dateTextView = itemView.findViewById(R.id.date) as TextView
-
+        private var longtude: Double = 0.0
+        private var latitude: Double = 0.0
 
         init {
             itemView.setOnClickListener(this)
@@ -73,6 +77,7 @@ class EarthquakesFragment : Fragment() {
             mag(features.properties.mag)
             date(features.properties.time)
             time(features.properties.time)
+            setCoordinates(features.geometry.coordinates)
 
             val place = features.properties.place
             val parts = place.split("of".toRegex()).toTypedArray()
@@ -109,14 +114,17 @@ class EarthquakesFragment : Fragment() {
             }
         }
 
-        fun countryAndPlace(str: String) {
-            val parts: List<String> = str.split("of")
-            placeTextView.text = """${parts[0]}OF"""
-            countryTextView.text = "${parts[1]}"
-        }
 
-        override fun onClick(p0: View?) {
-            TODO("Not yet implemented")
+        fun setCoordinates(coordinates: List<Double>) {
+            longtude = coordinates[0]
+            latitude = coordinates[1]
+        }
+        override fun onClick(v: View?) {
+            val uri = Uri.parse("geo:$latitude,$longtude")
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = uri
+            }
+            ContextCompat.startActivity(itemView.context, intent, null)
         }
     }
 
